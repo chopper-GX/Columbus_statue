@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Columbus Monuments Removed, Targeted for Removal, or Damaged Across the United States in 2020</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ink:#1d1b17; --muted:#6b665a; --line:#e2dfd3; --paper:#ffffff;
+  --removed:#c8412b; --both:#5e2b73; --damaged:#e3a31c; --proposed:#2b6f99;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff;color:var(--ink);font-family:var(--sans)}
+.graphic{max-width:1400px;margin:0 auto}
+.stage{position:relative;height:100vh;height:100dvh;min-height:560px;background:#dfebec;overflow:hidden}
+#map{position:absolute;inset:0}
+
+/* floating headline card */
+.card{position:absolute;left:18px;bottom:68px;width:250px;background:#f9faf3;border:1px solid rgba(0,0,0,.07);border-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 12px 32px -8px rgba(30,30,20,.28);padding:13px 15px 11px;z-index:3}
+.eyebrow{display:flex;align-items:center;gap:10px;margin:0 0 7px;font:600 9px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.eyebrow:after{content:"";flex:1;height:1px;background:var(--line)}
+h1{margin:0 0 10px;font:600 15.5px/1.2 var(--serif);letter-spacing:-.005em;text-wrap:balance}
+.bar{display:flex;height:3px;margin:0 0 6px;gap:2px}
+.bar span{display:block;height:100%;border-radius:1px}
+.total{font:500 9.5px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.total b{color:var(--ink)}
+.legend{display:grid;gap:0;margin:0 0 8px}
+.row{display:flex;align-items:center;gap:9px;width:100%;border:0;background:transparent;padding:4px 6px;margin:0 -6px;font:500 12px var(--sans);color:var(--ink);cursor:pointer;text-align:left;border-radius:2px;border-top:1px solid #e7e0cb}
+.row:hover{background:#f1ecda}
+.row:focus-visible{outline:2px solid var(--ink)}
+.row i{width:10px;height:10px;border-radius:50%;background:var(--c);border:2px solid #f9faf3;box-shadow:0 0 0 1px rgba(0,0,0,.28),0 1px 2px rgba(0,0,0,.25);flex:none}
+.row em{font-style:normal;flex:1}
+.row b{font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted)}
+.row[aria-pressed="false"]{opacity:.38}
+.row[aria-pressed="false"] i{background:#fff}
+.hint{margin:0;font:400 10.5px/1.4 var(--sans);color:var(--muted);padding-top:2px}
+.hint a{color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+
+
+/* popup */
+.maplibregl-popup{max-width:none!important;pointer-events:none;z-index:6}
+.maplibregl-popup-content{width:252px;padding:6px 6px 12px!important;border-radius:2px!important;box-shadow:0 1px 2px rgba(0,0,0,.08),0 18px 40px -10px rgba(30,30,20,.4)!important;font-family:var(--sans)}
+.maplibregl-popup-tip{display:none}
+.pp>h3,.pp>p,.pp>.tag{margin-left:8px;margin-right:8px}
+.ph{aspect-ratio:1/1;background:#eeece3;display:flex;align-items:center;justify-content:center;color:#8a8470;font:600 10.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.pp h3{margin-top:11px;margin-bottom:2px;font:600 17px/1.2 var(--serif)}
+.pp p{margin-top:0;margin-bottom:8px;font:400 12.5px/1.35 var(--sans);color:var(--muted)}
+.tag{display:flex;align-items:center;gap:7px;font:600 10.5px var(--sans);letter-spacing:.1em;text-transform:uppercase}
+.tag i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.stl{font:600 12px var(--sans);color:#111;letter-spacing:.01em;pointer-events:none;white-space:nowrap;text-shadow:0 0 3px rgba(255,255,255,.95),0 0 2px rgba(255,255,255,.95);z-index:0}
+.maplibregl-ctrl-attrib{font-size:10px;background:rgba(255,255,255,.7)!important}
+.maplibregl-ctrl-group{border-radius:2px!important;box-shadow:0 1px 2px rgba(0,0,0,.1),0 6px 16px -4px rgba(30,30,20,.25)!important}
+
+#diag{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);z-index:9;max-width:80%;background:#fff;border:1px solid var(--line);padding:8px 12px;font:12px/1.4 var(--sans);color:#8a2a1a;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.src{position:absolute;left:18px;bottom:10px;z-index:3;max-width:min(520px,60%);font:400 11px/1.45 var(--sans);color:#33403f;text-shadow:0 0 3px rgba(255,255,255,.6)}
+.src p{margin:0 0 1px}
+.foot{padding:10px 18px 24px;font:400 12px/1.5 var(--sans);color:var(--muted)}
+.foot p{margin:0 0 2px}
+
+@media (max-width:760px){
+  .stage{height:auto;min-height:0;display:flex;flex-direction:column;background:#fff}
+  .card{position:static;width:auto;box-shadow:none;border-bottom:1px solid var(--line)}
+  #map{position:relative;inset:auto;height:70vh;min-height:420px}
+  .src{position:static;max-width:none;padding:8px 16px 18px;color:var(--muted);text-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="graphic">
+  <div class="stage">
+    <div class="card">
+      <p class="eyebrow">United States · 2020</p>
+      <h1>Columbus Monuments Removed, Targeted for Removal, or Damaged Across the United States in 2020</h1>
+      <div class="bar" id="bar" aria-hidden="true"></div>
+      <p class="total" id="total"></p>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div id="map"></div>
+    <div id="diag" hidden></div>
+    <div class="src"><p>Source: Information on statues and monuments obtained from regional and local news stations.</p><p>Credit: [to be added]</p></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script>
+(function(){
+"use strict";
+function diag(m){var d=document.getElementById("diag");d.textContent=m;d.hidden=false}
+if(!window.maplibregl){diag("Map library did not load. Open this file in Chrome or Safari with internet access (not an in-app preview).");return}
+if(maplibregl.supported&&!maplibregl.supported()){diag("WebGL is not available in this browser.");return}
+var CATS=[
+ {k:"Removed",c:"#c8412b"},
+ {k:"Damaged & Removed",c:"#5e2b73"},
+ {k:"Damaged",c:"#e3a31c"},
+ {k:"Proposed Removal",c:"#2b6f99"}];
+var CC={};CATS.forEach(function(c){CC[c.k]=c.c});
+var S="Christopher Columbus statue";
+var PHOTO_BASE="photo/"; /* change to your site/CDN folder URL, e.g. https://example.com/columbus/ */
+var IMG=["Christopher Columbus; Grant Park, Chicago.jpeg", "Christopher Columbus; Buffalo, N.Y..jpg", "Christopher Columbus; Trenton, N.J..png", "Columbus' Last Appeal to Queen Isabella; Sacramento, Calif..jpg", "Christopher Columbus; Bridgeport, Conn..jpg", "Christopher Columbus; Columbus, Wis..png", "Christopher Columbus; Waterbury, Conn..jpg", "Christopher Columbus; Baltimore.jpg", "Christopher Columbus; Philadelphia.jpg", "", "Christopher Columbus; Columbus, Ohio.jpg", "Christopher Columbus; Hartford, Conn..jpg", "Christopher Columbus; Atlantic City, N.J..jpg", "Christopher Columbus; Denver.JPG", "Christopher Columbus; Norwalk, Conn..png", "Christopher Columbus; Providence, R.I..jpg", "Christopher Columbus; Washington Park, Newark, N.J..jpg", "Christopher Columbus; New Haven, Conn..jpg", "Christopher Columbus; Houston.png", "Christopher Columbus; Columbus State Community College, Columbus, Ohio.jpg", "Christopher Columbus; St. Louis.jpg", "Christopher Columbus bust; Detroit.jpg", "Christopher Columbus; West Orange, N.J..png", "Christopher Columbus; Middletown, Conn..png", "Christopher Columbus; Chula Vista, Calif..png", "Christopher Columbus; Columbia, S.C..jpg", "Christopher Columbus; Wilmington, Del..jpg", "Christopher Columbus; New London, Conn..png", "", "Christopher Columbus; Boston.jpg", "Christopher Columbus; St. Paul, Minn..jpg", "Christopher Columbus; Richmond, Va..jpg", "Christopher Columbus; San Francisco.jpg", "Christopher Columbus; Arrigo Park, Chicago.jpg", "Christopher Columbus; Drake Fountain, South Chicago.jpg", "Christopher Columbus; Syracuse, N.Y..jpg", "Christopher Columbus; Pittsburgh.JPG", "Christopher Columbus; Worcester, Mass..png", "Christopher Columbus; Wilkes-Barre, Penn..png", "Christopher Columbus:Italian-American Veterans memorial; Springfield, Mass..png", "Christopher Columbus; Miami.jpg", "Christopher Columbus; Peoria, Ill..jpg", "Christopher Columbus; Columbus Plaza, Newark, N.J..jpg", "Columbus portrait relief; Italian Heritage monument, Norwich, Conn..png"];
+/* img: paste the photo URL for each monument (same order as the spreadsheet) */
+var D=[
+["Grant Park, Chicago",S,"Damaged & Removed",41.867939,-87.619628],
+["Columbus Park, Buffalo, N.Y.",S,"Removed",42.901222,-78.892944],
+["Trenton, N.J.",S,"Damaged & Removed",40.214889,-74.747611],
+["Sacramento, Calif.","Columbus' Last Appeal to Queen Isabella","Removed",38.576760,-121.493285],
+["Seaside Park, Bridgeport, Conn.",S,"Removed",41.159817,-73.188933],
+["Columbus, Wis.",S,"Removed",43.348917,-89.037194],
+["Waterbury, Conn.",S,"Damaged",41.55529,-73.0463],
+["Little Italy, Baltimore",S,"Damaged & Removed",39.28536,-76.60372],
+["Marconi Plaza, Philadelphia",S,"Proposed Removal",39.915563,-75.172088],
+["San Antonio, Texas",S,"Damaged & Removed",29.429990,-98.499092],
+["City Hall, Columbus, Ohio",S,"Removed",39.962298,-83.003289],
+["Hartford, Conn.",S,"Removed",41.761569,-72.682197],
+["Atlantic City, N.J.",S,"Damaged & Removed",39.3583,-74.4366],
+["Denver",S,"Damaged & Removed",39.73956,-104.98866],
+["Norwalk, Conn.",S,"Removed",41.109611,-73.418528],
+["Providence, R.I.",S,"Damaged & Removed",41.827022,-71.507250],
+["Washington Park, Newark, N.J.",S,"Removed",40.7434528,-74.1698917],
+["New Haven, Conn.",S,"Damaged & Removed",41.303992,-72.918006],
+["Houston",S,"Damaged & Removed",29.7293276,-95.3916086],
+["Columbus State Community College, Columbus, Ohio",S,"Damaged & Removed",39.969609,-82.988038],
+["Tower Grove Park, St. Louis",S,"Removed",38.605120,-90.243030],
+["Detroit","Christopher Columbus bust","Removed",42.330105,-83.042226],
+["West Orange, N.J.",S,"Removed",40.772016,-74.243750],
+["Middletown, Conn.",S,"Removed",41.559194,-72.643389],
+["Chula Vista, Calif.",S,"Damaged & Removed",32.643611,-117.010306],
+["Columbia, S.C.",S,"Damaged & Removed",34.0028528,-81.055225],
+["Wilmington, Del.",S,"Removed",39.75321,-75.55856],
+["New London, Conn.",S,"Damaged & Removed",41.3503209,-72.1009634],
+["Camden, N.J.",S,"Damaged & Removed",39.936530,-75.091680],
+["North End, Boston",S,"Damaged & Removed",42.361298,-71.051188],
+["St. Paul, Minn.",S,"Damaged & Removed",44.954417,-93.100972],
+["Richmond, Va.",S,"Damaged & Removed",41.056111,-73.970556],
+["San Francisco",S,"Damaged & Removed",37.80278,-122.40611],
+["Arrigo Park, Chicago",S,"Removed",41.871756,-87.661381],
+["Drake Fountain, South Chicago",S,"Removed",41.728100,-87.552700],
+["Syracuse, N.Y.",S,"Proposed Removal",43.046833,-76.149083],
+["Pittsburgh",S,"Damaged",40.440278,-79.948444],
+["Worcester, Mass.",S,"Damaged",42.261667,-71.794722],
+["Wilkes-Barre, Pa.",S,"Damaged",41.245750,-75.882222],
+["Springfield, Mass.","Columbus / Italian-American Veterans memorial","Damaged",42.091444,-72.579639],
+["Miami",S,"Damaged",25.776389,-80.185000],
+["Peoria, Ill.",S,"Removed",40.702139,-89.620806],
+["Columbus Plaza, Newark, N.J.",S,"Removed",40.743436,-74.171358],
+["Norwich, Conn.","Columbus portrait relief (Italian Heritage monument)","Proposed Removal",41.535972,-72.082111]
+].map(function(r,i){return{id:i,place:r[0],name:r[1],cat:r[2],lat:r[3],lon:r[4],img:IMG[i]?PHOTO_BASE+encodeURIComponent(IMG[i]):""}});
+
+var GEO={type:"FeatureCollection",features:D.map(function(d){
+  return{type:"Feature",id:d.id,properties:{id:d.id,cat:d.cat,color:CC[d.cat]},geometry:{type:"Point",coordinates:[d.lon,d.lat]}}})};
+
+/* ---------- card: proportion bar, legend, hint ---------- */
+var counts={};CATS.forEach(function(c){counts[c.k]=D.filter(function(d){return d.cat===c.k}).length});
+var bar=document.getElementById("bar");
+CATS.forEach(function(c){var s=document.createElement("span");s.style.cssText="background:"+c.c+";flex:"+counts[c.k];s.title=c.k;bar.appendChild(s)});
+document.getElementById("total").innerHTML="<b>"+D.length+"</b> monuments";
+var active=new Set(CATS.map(function(c){return c.k}));
+var legend=document.getElementById("legend");
+function applyFilter(){
+  var f=["in",["get","cat"],["literal",Array.from(active)]];
+  ["pts-shadow","pts-halo","pts"].forEach(function(id){if(map.getLayer(id))map.setFilter(id,f)})}
+CATS.forEach(function(c){
+  var b=document.createElement("button");b.type="button";b.className="row";b.style.setProperty("--c",c.c);b.setAttribute("aria-pressed","true");
+  b.innerHTML="<i></i><em>"+c.k+"</em><b>"+counts[c.k]+"</b>";
+  b.onclick=function(){var on=b.getAttribute("aria-pressed")==="true";b.setAttribute("aria-pressed",on?"false":"true");on?active.delete(c.k):active.add(c.k);applyFilter()};
+  legend.appendChild(b)});
+
+/* ---------- base map: pale land, faint terrain relief, soft blue ocean with seabed texture ---------- */
+var OFM="https://tiles.openfreemap.org";
+var AP={"Alabama":"Ala.","Arizona":"Ariz.","Arkansas":"Ark.","California":"Calif.","Colorado":"Colo.","Connecticut":"Conn.","Delaware":"Del.","Florida":"Fla.","Georgia":"Ga.","Illinois":"Ill.","Indiana":"Ind.","Kansas":"Kan.","Kentucky":"Ky.","Louisiana":"La.","Maryland":"Md.","Massachusetts":"Mass.","Michigan":"Mich.","Minnesota":"Minn.","Mississippi":"Miss.","Missouri":"Mo.","Montana":"Mont.","Nebraska":"Neb.","Nevada":"Nev.","New Hampshire":"N.H.","New Jersey":"N.J.","New Mexico":"N.M.","New York":"N.Y.","North Carolina":"N.C.","North Dakota":"N.D.","Oklahoma":"Okla.","Oregon":"Ore.","Pennsylvania":"Pa.","Rhode Island":"R.I.","South Carolina":"S.C.","South Dakota":"S.D.","Tennessee":"Tenn.","Vermont":"Vt.","Virginia":"Va.","Washington":"Wash.","West Virginia":"W.Va.","Wisconsin":"Wis.","Wyoming":"Wyo.","District of Columbia":"D.C.","Alberta":"Alta.","British Columbia":"B.C.","Manitoba":"Man.","New Brunswick":"N.B.","Newfoundland and Labrador":"N.L.","Nova Scotia":"N.S.","Ontario":"Ont.","Prince Edward Island":"P.E.I.","Quebec":"Que.","Québec":"Que.","Saskatchewan":"Sask."};
+var NAME=["coalesce",["get","name:en"],["get","name"]];
+var APX=["match",NAME];
+Object.keys(AP).forEach(function(k){APX.push(k,AP[k])});
+APX.push(NAME);
+var HALO={"text-halo-color":"rgba(255,255,255,.85)","text-halo-width":1.4};
+var STYLE={
+  version:8,
+  glyphs:OFM+"/fonts/{fontstack}/{range}.pbf",
+  sources:{
+    dem:{type:"raster-dem",tileSize:256,maxzoom:15,encoding:"terrarium",
+      tiles:["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+      attribution:"Terrain © Mapzen, USGS, NASA"},
+    omt:{type:"vector",url:OFM+"/planet",attribution:"© <a href='https://openfreemap.org'>OpenFreeMap</a> © <a href='https://www.openmaptiles.org/'>OpenMapTiles</a> Data from <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"}
+  },
+  layers:[
+    {id:"bg",type:"background",paint:{"background-color":"#f9faf3"}},
+    {id:"hill",type:"hillshade",source:"dem",paint:{"hillshade-exaggeration":0.4,"hillshade-shadow-color":"#98a692","hillshade-highlight-color":"#ffffff","hillshade-accent-color":"#c3cdbb","hillshade-illumination-direction":315}},
+    {id:"water",type:"fill",source:"omt","source-layer":"water",paint:{"fill-color":"#dfebec","fill-opacity":0.68}},
+    {id:"waterway",type:"line",source:"omt","source-layer":"waterway",minzoom:5,paint:{"line-color":"#d6e5e7","line-width":["interpolate",["linear"],["zoom"],5,0.4,10,1.6]}},
+    {id:"b-state",type:"line",source:"omt","source-layer":"boundary",minzoom:2,filter:["all",["==",["get","admin_level"],4],["==",["get","maritime"],0]],
+      paint:{"line-color":"#8c8a80","line-width":["interpolate",["linear"],["zoom"],3,0.45,8,1.1]}},
+    {id:"b-country",type:"line",source:"omt","source-layer":"boundary",filter:["all",["==",["get","admin_level"],2],["==",["get","maritime"],0]],
+      paint:{"line-color":"#5d5a50","line-width":["interpolate",["linear"],["zoom"],3,0.7,8,1.6]}},
+    {id:"l-city",type:"symbol",source:"omt","source-layer":"place",minzoom:6,
+      filter:["in",["get","class"],["literal",["city","town"]]],
+      layout:{"text-field":NAME,"text-font":["Noto Sans Regular"],"text-size":["interpolate",["linear"],["zoom"],6,11,11,16],"symbol-sort-key":["coalesce",["get","rank"],99],"text-anchor":"top","text-offset":[0,0.5],"text-max-width":7},
+      paint:Object.assign({"text-color":"#2a2822"},HALO)}
+  ]
+};
+
+var BG="#dfebec";
+var wide=window.matchMedia("(min-width:761px)").matches;
+var BOUNDS=[[-125.5,23.6],[-65.5,50.4]];
+var map=new maplibregl.Map({
+  container:"map",style:STYLE,bounds:BOUNDS,
+  fitBoundsOptions:{padding:{top:wide?Math.round(window.innerHeight*0.2):20,bottom:wide?44:20,right:24,left:wide?290:24}},
+  attributionControl:false,minZoom:2.6,maxZoom:9.5,dragRotate:false,pitchWithRotate:false,cooperativeGestures:false});
+map.touchZoomRotate.disableRotation();
+map.addControl(new maplibregl.AttributionControl({compact:true}),"bottom-right");
+map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
+
+function rad(a,b,c,hv){return["interpolate",["linear"],["zoom"],3,a*hv,7,b*hv,12,c*hv]}
+function sized(a,b,c,add){
+  var h=function(x){return["case",["boolean",["feature-state","hover"],false],x*1.35+add,x+add]};
+  return["interpolate",["linear"],["zoom"],3,h(a),7,h(b),12,h(c)]}
+
+var popup=new maplibregl.Popup({closeButton:false,closeOnClick:false,offset:14,maxWidth:"none"});
+function esc(s){return s.replace(/[&<>]/g,function(m){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[m]})}
+function showPop(id,lngLat){
+  var d=D[id];
+  popup.setLngLat(lngLat).setHTML('<div class="pp"><div class="ph">'+(d.img?'<img src="'+d.img+'" alt="">':'Photo placeholder')+'</div><h3>'+esc(d.place)+'</h3><p>'+esc(d.name)+'</p><span class="tag" style="--c:'+CC[d.cat]+'"><i></i>'+d.cat+'</span></div>').addTo(map)}
+
+
+/* ---------- state labels (AP style) in the page font ---------- */
+var STL={"Wash.": [-120.5, 47.4], "Ore.": [-120.6, 44], "Calif.": [-119.6, 37.2], "Nev.": [-116.7, 39.3], "Idaho": [-114.6, 44.4], "Mont.": [-109.6, 47], "Wyo.": [-107.5, 43], "Utah": [-111.6, 39.3], "Ariz.": [-111.7, 34.2], "Colo.": [-105.6, 39], "N.M.": [-106.1, 34.4], "N.D.": [-100.5, 47.5], "S.D.": [-100.2, 44.4], "Neb.": [-99.8, 41.5], "Kan.": [-98.4, 38.5], "Okla.": [-97.5, 35.6], "Texas": [-99.3, 31.3], "Minn.": [-94.3, 46], "Iowa": [-93.5, 42], "Mo.": [-92.5, 38.4], "Ark.": [-92.4, 34.8], "La.": [-92, 31], "Wis.": [-89.9, 44.6], "Ill.": [-89.2, 40], "Ind.": [-86.3, 40], "Mich.": [-84.6, 43.7], "Ohio": [-82.8, 40.3], "Ky.": [-85.3, 37.5], "Tenn.": [-86.3, 35.8], "Miss.": [-89.7, 32.7], "Ala.": [-86.8, 32.8], "Ga.": [-83.4, 32.7], "Fla.": [-81.8, 28.1], "S.C.": [-80.9, 33.9], "N.C.": [-79.4, 35.5], "Va.": [-78.7, 37.5], "W.Va.": [-80.6, 38.6], "Pa.": [-77.8, 41], "N.Y.": [-75.5, 42.9], "Maine": [-69.2, 45.3], "Vt.": [-72.7, 44], "N.H.": [-71.6, 43.9], "Mass.": [-72.2, 42.35], "Conn.": [-72.7, 41.6], "R.I.": [-71.5, 41.7], "N.J.": [-74.5, 40.1], "Del.": [-75.5, 39], "Md.": [-77.1, 39.1]}, SMALL=["Vt.", "N.H.", "Mass.", "Conn.", "R.I.", "N.J.", "Del.", "Md."];
+var stEls=[];
+Object.keys(STL).forEach(function(n){
+  var el=document.createElement("div");el.className="stl";el.textContent=n;
+  new maplibregl.Marker({element:el,anchor:"center"}).setLngLat(STL[n]).addTo(map);
+  stEls.push({el:el,small:SMALL.indexOf(n)>=0})});
+function stVis(){var z=map.getZoom();stEls.forEach(function(o){var on=z>=3.2&&z<=8.5&&(!o.small||z>=5.4);o.el.style.display=on?"":"none";o.el.style.fontSize=(z<4.5?10.5:z<6?12:14)+"px"})}
+map.on("zoom",stVis);stVis();
+
+map.on("error",function(e){if(e&&!e.sourceId&&!e.tile){diag("Map error: "+(e.error&&e.error.message||e.error))}});
+var hoverId=null;
+function setHover(id,on){if(id!==null)map.setFeatureState({source:"monuments",id:id},{hover:on})}
+
+map.on("load",function(){
+  
+  /* ---- keep terrain everywhere, but draw only US lines (no Canada / Mexico borders) ---- */
+  fetch("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(function(r){return r.json()}).then(function(T){
+    var st=topojson.mesh(T,T.objects.states,function(a,b){return a!==b});
+    var nat=topojson.mesh(T,T.objects.nation);
+    map.addSource("uslines",{type:"geojson",data:{type:"FeatureCollection",features:[
+      {type:"Feature",properties:{k:"state"},geometry:st},{type:"Feature",properties:{k:"nation"},geometry:nat}]}});
+    map.addLayer({id:"us-state",type:"line",source:"uslines",filter:["==",["get","k"],"state"],
+      paint:{"line-color":"#8c8a80","line-width":["interpolate",["linear"],["zoom"],3,0.45,8,1.1]}},"pts-shadow");
+    map.addLayer({id:"us-nation",type:"line",source:"uslines",filter:["==",["get","k"],"nation"],
+      paint:{"line-color":"#6a665a","line-width":["interpolate",["linear"],["zoom"],3,0.7,8,1.5]}},"pts-shadow");
+    ["b-state","b-country"].forEach(function(id){if(map.getLayer(id))map.setLayoutProperty(id,"visibility","none")});
+  }).catch(function(err){console.error("US lines failed to load; keeping default borders",err)});
+  map.addSource("monuments",{type:"geojson",data:GEO});
+  map.addLayer({id:"pts-shadow",type:"circle",source:"monuments",paint:{"circle-radius":sized(4.5,6.5,9,2.6),"circle-color":"rgba(20,20,10,.45)","circle-blur":0.9,"circle-translate":[0,1.5],"circle-opacity":0.6}});
+  map.addLayer({id:"pts-halo",type:"circle",source:"monuments",
+    paint:{"circle-radius":sized(4.5,6.5,9,2.2),"circle-color":"#ffffff","circle-opacity":0.95}});
+  map.addLayer({id:"pts",type:"circle",source:"monuments",
+    paint:{"circle-radius":sized(4.5,6.5,9,0),"circle-color":["get","color"],"circle-stroke-width":0}});
+  map.on("mousemove","pts",function(e){
+    map.getCanvas().style.cursor="pointer";
+    var f=e.features[0];if(!f)return;
+    if(hoverId!==f.id){setHover(hoverId,false);hoverId=f.id;setHover(hoverId,true);showPop(f.id,f.geometry.coordinates.slice())}});
+  map.on("mouseleave","pts",function(){map.getCanvas().style.cursor="";setHover(hoverId,false);hoverId=null;popup.remove()});
+  map.on("click","pts",function(e){var f=e.features[0];if(f)showPop(f.id,f.geometry.coordinates.slice())});
+  map.on("click",function(e){if(!map.queryRenderedFeatures(e.point,{layers:["pts"]}).length)popup.remove()});
+});
+
+
+
+})();
+</script>
+</body>
+</html>
